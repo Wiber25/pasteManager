@@ -34,27 +34,32 @@ pywin32: 윈도우 시스템 API 제어
 📂 프로젝트 구조 (Architecture)
 Plaintext
 .
+
 ├── main.py              # 앱 엔트리 포인트 및 모듈 오케스트레이션
+
 ├── database.py          # SQLite CRUD 로직 (AppData 경로 최적화)
+
 ├── clipboard_worker.py  # 백그라운드 이벤트 리스너 (스레딩 처리)
+
 └── ui/
+    
     └── main_window.py   # PyQt6 기반 오버레이 UI 및 QSS 스타일링
+
 ⚙️ 실행 방법 (Getting Started)
-1. 환경 설치
-Bash
-pip install PyQt6 pyperclip keyboard pywin32
-2. 앱 실행
-Bash
-python main.py
-3. 빌드 (Executable)
-Bash
-pyinstaller --noconsole --onefile --add-data "ui;ui" --name "PasteManager" main.py
+    1. 환경 설치
+        Bash
+        pip install PyQt6 pyperclip keyboard pywin32
+    2. 앱 실행
+        Bash
+        python main.py
+    3. 빌드 (Executable)
+        Bash
+        pyinstaller --noconsole --onefile --add-data "ui;ui" --name "PasteManager" main.py
+
 💡 구현 디테일 (Engineering Notes)
-Focus Management: WindowDoesNotAcceptFocus 플래그를 사용하여 UI 호출 시 기존 작업 중인 창의 포커스를 유지하도록 설계했습니다.
-
-Thread Safety: UI 스레드와 백그라운드 리스너 스레드 간의 통신을 위해 PyQt의 pyqtSignal 시스템을 활용했습니다.
-
-UX Optimization: 클릭 시 창을 즉시 숨기고 비동기로 Ctrl + V 이벤트를 주입하여 네이티브 앱과 같은 사용자 경험을 구현했습니다.
+    Focus Management: WindowDoesNotAcceptFocus 플래그를 사용하여 UI 호출 시 기존 작업 중인 창의 포커스를 유지하도록 설계했습니다.
+    Thread Safety: UI 스레드와 백그라운드 리스너 스레드 간의 통신을 위해 PyQt의 pyqtSignal 시스템을 활용했습니다.
+    UX Optimization: 클릭 시 창을 즉시 숨기고 비동기로 Ctrl + V 이벤트를 주입하여 네이티브 앱과 같은 사용자 경험을 구현했습니다.
 
 📝 라이선스 (License)
 이 프로젝트는 MIT 라이선스를 따릅니다.
