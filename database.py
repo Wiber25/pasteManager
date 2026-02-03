@@ -1,23 +1,61 @@
 import sqlite3
+import os
+import logging
 from datetime import datetime
 
 class ClipboardDatabase:
     def __init__(self, db_name="clipboard_history.db"):
-        self.db_name = db_name
-        self.init_db()
+        # 로깅 설정
+        self.setup_logging()
+        
+        try:
+            # 1. 유저의 홈 디렉토리 하위 .PasteManager 폴더 사용 (안정성 향상)
+            # 예: C:\Users\User\.PasteManager
+            app_data_path = os.path.join(os.path.expanduser("~"), '.PasteManager')
+            logging.info(f"AppData Path: {app_data_path}")
+            
+            # 2. 폴더가 없으면 생성
+            if not os.path.exists(app_data_path):
+                logging.info("Creating AppData directory...")
+                os.makedirs(app_data_path, exist_ok=True)
+                logging.info("AppData directory created successfully.")
+            
+            # 3. 전체 DB 경로 설정
+            self.db_path = os.path.join(app_data_path, db_name)
+            logging.info(f"Database Path: {self.db_path}")
+            
+            self.init_db()
+        except Exception as e:
+            logging.error(f"Failed to initialize database: {e}", exc_info=True)
+            raise e
+
+    def setup_logging(self):
+        # 로그 파일 경로 설정 (홈 디렉토리/.PasteManager 폴더 내)
+        try:
+            log_dir = os.path.join(os.path.expanduser("~"), '.PasteManager')
+            if not os.path.exists(log_dir):
+                os.makedirs(log_dir, exist_ok=True)
+            
+            log_file = os.path.join(log_dir, 'db_debug.log')
+            logging.basicConfig(
+                filename=log_file,
+                level=logging.INFO,
+                format='%(asctime)s - %(levelname)s - %(message)s',
+                encoding='utf-8' # 한글 로그 지원
+            )
+            logging.info("Logging initialized.")
+        except Exception as e:
+            # 로깅 설정 실패 시 콘솔에 출력 (예비책)
+            print(f"Failed to setup logging: {e}")
 
     def get_connection(self):
-        """데이터베이스 연결 객체를 반환합니다."""
-        return sqlite3.connect(self.db_name)
+        """절대 경로를 사용하여 연결"""
+        return sqlite3.connect(self.db_path)
 
     def init_db(self):
-        """앱 실행 시 필요한 테이블을 생성합니다."""
+        # ... (이전과 동일한 테이블 생성 로직) ...
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            # id: 고유 식별자
-            # content: 복사된 내용
-            # created_at: 복사된 시간
-            # is_pinned: Win+V처럼 중요한 항목 고정 기능용
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS clipboard_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
